@@ -1,20 +1,20 @@
-class AbstractBucketManager{
+module.exports = class AbstractBucketManager{
     constructor() {
       if (this.constructor === AbstractBucketManager) {
         throw new TypeError('Abstract class "AbstractBucketManager" cannot be instantiated directly');
       }
     }
     
-    async CreateObject(objectUrl, filePath = ""){
+    async createObject({objectUrl, filePath = ""}){
       throw new Error('You must implement this function');
     };
-    async Exists(objectUrl){
+    async exists({objectUrl}){
       throw new Error('You must implement this function');
     };
-    async RemoveObject(objectUrl){
+    async removeObject({objectUrl}){
       throw new Error('You must implement this function');
     };
-    async DownloadObject(objectUrl, destinationUri){
+    async downloadObject({objectUrl, destinationUri}){
       throw new Error('You must implement this function');
     };
 }

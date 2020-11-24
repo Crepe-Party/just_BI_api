@@ -1,23 +1,23 @@
 // import entire SDK
-import { config, S3 } from 'aws-sdk';
-import AbstractBucketManager from AbstractBucketManager
+var aws = require('aws-sdk');
+const AbstractBucketManager = require('./AbstractBucketManager');
 
-export default class Bucket extends AbstractBucketManager {
-    constructor(name){           
+module.exports = class Bucket extends AbstractBucketManager {
+    constructor(name = "awsnode.actualit.info"){           
+        aws.config.loadFromPath('./config.json');
         this.name = name;
 
-        config.loadFromPath('./config.json');
-        this.s3 = new S3({             
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.accessKeyId,
-            region: config.region,
+        this.s3 = new aws.S3({             
+            accessKeyId: aws.config.accessKeyId,
+            secretAccessKey: aws.config.accessKeyId,
+            region: aws.config.region,
         });
         
         this.createBucket();
     }
     // bucket method
-    createBucket(){
-        this.s3.createBucket({Bucket: this.name});
+    async createBucket(){
+        return this.s3.createBucket({Bucket: this.name});
     }
     destroyBucket(){
         this.s3.deleteBucket({Bucket: this.name});
@@ -37,7 +37,7 @@ export default class Bucket extends AbstractBucketManager {
     removeObject({objectUrl}){
 
     }
-    downloadObject({objectUrl, destinationUri}){
+    async downloadObject({objectUrl, destinationUri}){
 
     }
 }
