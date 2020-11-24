@@ -18,14 +18,15 @@ Create bucket
 
     aws s3 mb s3://awsnode.actualit.info
 
-Delete buckets
+Delete buckets (recursively)
 
-    aws s3 rb s3://awsnode.actualit.info
+    aws s3 rb s3://awsnode.actualit.info --force
 
 Upload object
 
     aws s3 cp awstest.txt s3://awsnode.actualit.info/example/
-    // pour renommer en même temps, enlever le / de fin
+    // to copy the file on example dir do not forget the /,  
+    // without the / your copy rename awstest.txt into example
 
 Delete object
 
