@@ -1,20 +1,21 @@
 // import entire SDK
-import { config, S3 } from 'aws-sdk';
+var aws = require('aws-sdk')
 
-export default class Bucket {
-    constructor(name){           
-        this.name = name;
+module.exports = class Bucket {
+    constructor(){           
+        aws.config.loadFromPath('./config.json');
+        this.name = "awsnode.actualit.info";
 
-        config.loadFromPath('./config.json');
-        this.s3 = new S3({             
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.accessKeyId,
-            region: config.region,
+        this.s3 = new aws.S3({             
+            accessKeyId: aws.config.accessKeyId,
+            secretAccessKey: aws.config.accessKeyId,
+            region: aws.config.region,
         });
-        
-        this.s3.createBucket({Bucket: name});
     }
-
+    async createBucket(){
+        var res = await this.s3.createBucket({Bucket: this.name});
+        return res.data
+    }
     upload({filename, content}) {
         this.s3.upload({
             Bucket: this.name,
@@ -26,13 +27,5 @@ export default class Bucket {
     destroy(){
         this.s3.deleteBucket({Bucket: this.name});
         delete this;
-    }
-
-    get name(){
-        return this.name;
-    }
-
-    get listObjects(){
-        return this.s3.listObjects({Bucket: this.name})
     }
 }
