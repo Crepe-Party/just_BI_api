@@ -1,7 +1,8 @@
 // import entire SDK
 import { config, S3 } from 'aws-sdk';
+import AbstractBucketManager from AbstractBucketManager
 
-export default class Bucket {
+export default class Bucket extends AbstractBucketManager {
     constructor(name){           
         this.name = name;
 
@@ -12,27 +13,31 @@ export default class Bucket {
             region: config.region,
         });
         
-        this.s3.createBucket({Bucket: name});
+        this.createBucket();
     }
-
-    upload({filename, content}) {
-        this.s3.upload({
-            Bucket: this.name,
-            Key: filename, //name stored in S3
-            Body: content //file content
-        });
+    // bucket method
+    createBucket(){
+        this.s3.createBucket({Bucket: this.name});
     }
-
-    destroy(){
+    destroyBucket(){
         this.s3.deleteBucket({Bucket: this.name});
         delete this;
     }
-
-    get name(){
-        return this.name;
+    // object
+    createObject({objectUrl, filePath = ""}) {
+        this.s3.upload({
+            Bucket: this.name,
+            Key: filePath, //name stored in S3
+            Body: objectUrl //file content
+        });
     }
+    exists({objectUrl}){
 
-    get listObjects(){
-        return this.s3.listObjects({Bucket: this.name})
+    }
+    removeObject({objectUrl}){
+
+    }
+    downloadObject({objectUrl, destinationUri}){
+
     }
 }
