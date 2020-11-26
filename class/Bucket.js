@@ -13,19 +13,17 @@ module.exports = class Bucket {
         });
     }
     async createBucket(){
-        var res = await this.s3.createBucket({Bucket: this.name});
-        return res.data
+        return this.s3.createBucket({Bucket: this.name}).promise()
     }
-    upload({filename, content}) {
-        this.s3.upload({
+    async upload({filename, content}) {
+        return this.s3.upload({
             Bucket: this.name,
             Key: filename, //name stored in S3
             Body: content //file content
-        });
+        }).promise();
     }
 
-    destroy(){
-        this.s3.deleteBucket({Bucket: this.name});
-        delete this;
+    async destroy(){
+       return this.s3.deleteBucket({Bucket: this.name}).promise();
     }
 }
