@@ -21,26 +21,50 @@ module.exports = class TestBucket {
             expect(this.s3.getBucketTagging({ Bucket: name })).not.toBeNull();
         });
     }
-
-    Delete_DeleteBucket_BucketDeleted() {
-        test("Create a new bucket in S3", () => {
-            expect(this.s3.getBucketTagging({ Bucket: name })).toBeNull();
-        });
-    }
-
-    Upload_UploadFile_FileUploaded() {
+    CreateObject_CreateObjectWithExistingBucket_Success(){
         this.bucket.upload({ filename: "README.md", content: this.fileContent })
         test("Create a new bucket in S3", function (error, data) {
             if (error)
                 fail("no file uploaded");
-
+    
             expect(data.Body.toString('utf-8')).toEqual(fileContent)
         });
     }
+    CreateObject_CreateObjectBucketNotExist_Success(){
 
-    Manage_ManageBucket_AllTestPassed(){
+    }
+    DownloadObject_NominalCase_Success(){
+
+    }
+    Exists_NominalCase_Success(){
+
+    }
+    Exists_ObjectNotExistBucket_Success(){
+
+    }
+    Exists_ObjectNotExistFile_Success(){
+
+    }
+    RemoveObject_EmptyBucket_Success(){
+
+    }
+    RemoveObject_NotEmptyBucket_Success(){
+
+    }
+    Delete_DeleteBucket_BucketDeleted() {
+        
+    }
+
+    Manage_ManageBucket_AllTest(){
         CreateObject_CreateNewBucket_Success()
-        Delete_DeleteBucket_BucketDeleted()
-        Upload_UploadFile_FileUploaded()
+        CreateObject_CreateObjectWithExistingBucket_Success()
+        CreateObject_CreateObjectBucketNotExist_Success()
+        DownloadObject_NominalCase_Success()
+        Exists_NominalCase_Success()
+        Exists_ObjectNotExistBucket_Success()
+        Exists_ObjectNotExistFile_Success()
+        RemoveObject_EmptyBucket_Success()
+        RemoveObject_NotEmptyBucket_Success()
+        Delete_DeleteBucket_BucketDeleted()    
     }
 }
