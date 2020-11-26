@@ -1,5 +1,5 @@
 // import entire SDK
-var aws = require('aws-sdk')
+const aws = require('aws-sdk')
 const AbstractBucketManager = require('./AbstractBucketManager');
 module.exports = class Bucket extends AbstractBucketManager {
     constructor(name = "awsnode.actualit.info"){           

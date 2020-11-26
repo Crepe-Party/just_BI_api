@@ -1,17 +1,16 @@
 // import entire SDK
-import { doesNotMatch } from 'assert';
-import { config, S3 } from 'aws-sdk';
-import Bucket from "../class/Bucket"
-import fs from 'fs';
+const Bucket = require('../class/Bucket');
+const aws = require('aws-sdk');
+const fs = require('fs');
 
-export default class TestBucket {
+module.exports = class TestBucket {
     constructor() {
         this.name = "random name";
-        config.loadFromPath('../config.json');
-        this.s3 = new S3({
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.accessKeyId,
-            region: config.region,
+        aws.config.loadFromPath('../config.json');
+        this.s3 = new aws.S3({
+            accessKeyId: aws.config.accessKeyId,
+            secretAccessKey: aws.config.accessKeyId,
+            region: aws.config.region,
         });
 
         this.fileContent = fs.readFileSync("../README.md");
