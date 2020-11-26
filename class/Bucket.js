@@ -1,38 +1,43 @@
 // import entire SDK
-import { config, S3 } from 'aws-sdk';
+var aws = require('aws-sdk');
+const AbstractBucketManager = require('./AbstractBucketManager');
 
-export default class Bucket {
-    constructor(name){           
+module.exports = class Bucket extends AbstractBucketManager {
+    constructor(name = "awsnode.actualit.info"){           
+        aws.config.loadFromPath('./config.json');
         this.name = name;
 
-        config.loadFromPath('./config.json');
-        this.s3 = new S3({             
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.accessKeyId,
-            region: config.region,
+        this.s3 = new aws.S3({             
+            accessKeyId: aws.config.accessKeyId,
+            secretAccessKey: aws.config.accessKeyId,
+            region: aws.config.region,
         });
         
-        this.s3.createBucket({Bucket: name});
+        this.createBucket();
     }
-
-    upload({filename, content}) {
-        this.s3.upload({
-            Bucket: this.name,
-            Key: filename, //name stored in S3
-            Body: content //file content
-        });
+    // bucket method
+    async createBucket(){
+        return this.s3.createBucket({Bucket: this.name});
     }
-
-    destroy(){
+    destroyBucket(){
         this.s3.deleteBucket({Bucket: this.name});
         delete this;
     }
-
-    get name(){
-        return this.name;
+    // object
+    createObject({objectUrl, filePath = ""}) {
+        this.s3.upload({
+            Bucket: this.name,
+            Key: filePath, //name stored in S3
+            Body: objectUrl //file content
+        });
     }
+    exists({objectUrl}){
 
-    get listObjects(){
-        return this.s3.listObjects({Bucket: this.name})
+    }
+    removeObject({objectUrl}){
+
+    }
+    async downloadObject({objectUrl, destinationUri}){
+
     }
 }
