@@ -17,8 +17,7 @@ export default class TestBucket {
         this.fileContent = fs.readFileSync("../README.md");
         this.bucket = new Bucket(this.name);
     };
-
-    Create_CreateBucket_BucketCreated() {
+    CreateObject_CreateNewBucket_Success() {
         test("Create a new bucket in S3", () => {
             expect(this.s3.getBucketTagging({ Bucket: name })).not.toBeNull();
         });
@@ -40,16 +39,9 @@ export default class TestBucket {
         });
     }
 
-    Manage_ManageBucket_AllTestPassed() {
-        if (Create_CreateBucket_BucketCreated()
-            && Delete_DeleteBucket_BucketDeleted()
-            && Upload_UploadFile_FileUploaded()
-        ) {
-            console.log("Test Upload_UploadFile_FileUploaded : failed")
-            return false
-        } else {
-            console.log("Test Upload_UploadFile_FileUploaded : sucess")
-            return true
-        }
+    Manage_ManageBucket_AllTestPassed(){
+        CreateObject_CreateNewBucket_Success()
+        Delete_DeleteBucket_BucketDeleted()
+        Upload_UploadFile_FileUploaded()
     }
 }
