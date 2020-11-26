@@ -1,21 +1,13 @@
 // import entire SDK
 const Bucket = require('../class/Bucket');
-const aws = require('aws-sdk');
 const fs = require('fs');
 
 module.exports = class TestBucket {
     constructor() {
-        this.name = "random name";
-        aws.config.loadFromPath('../config.json');
-        this.s3 = new aws.S3({
-            accessKeyId: aws.config.accessKeyId,
-            secretAccessKey: aws.config.accessKeyId,
-            region: aws.config.region,
-        });
-
         this.fileContent = fs.readFileSync("../README.md");
-        this.bucket = new Bucket(this.name);
+        this.bucket = new Bucket();
     };
+    
     CreateObject_CreateNewBucket_Success() {
         test("Create a new bucket in S3", () => {
             expect(this.s3.getBucketTagging({ Bucket: name })).not.toBeNull();

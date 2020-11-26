@@ -2,7 +2,8 @@
 const aws = require('aws-sdk')
 const AbstractBucketManager = require('./AbstractBucketManager');
 module.exports = class Bucket extends AbstractBucketManager {
-    constructor(name = "awsnode.actualit.info"){           
+    constructor(name = "awsnode.actualit.info"){   
+        super()        
         aws.config.loadFromPath('./config.json');
         this.name = name;
 
@@ -14,7 +15,7 @@ module.exports = class Bucket extends AbstractBucketManager {
     }
     // bucket method
     async createBucket(){
-        return await this.s3.createBucket({Bucket: this.name});
+        return this.s3.createBucket({Bucket: this.name}).promise();
     }
     async destroyBucket(){
         return this.s3.deleteBucket({Bucket: this.name}).promise();
