@@ -71,9 +71,11 @@ describe( "ini", () => {
     });
     
     it("Exists_ObjectNotExistBucket_Success", async () => {
+        //given
         bucket = new Bucket("fake")
+        //when
         var input = await bucket.bucketExists();
-
+        //then
         assert.strictEqual(input, false);          
     });
     
@@ -112,7 +114,6 @@ describe( "ini", () => {
         assert.strictEqual(input, false);  
         
     });
-
 
     it("Delete a bucket in S3, with files", async () => {  
         await bucket.createBucket();  
