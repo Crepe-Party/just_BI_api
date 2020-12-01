@@ -7,17 +7,16 @@ const assert = require( "assert" );
 //Jest not work on class... I've transformed it to next tests
 
 //run test by test, i don't know why the async not work... (it's a current bug of framework, because we use async on afterEach)
-describe( "All Tests", () => {
+describe( "ini", () => {
     
     var fileContent = fs.readFileSync("./README.md");
     var bucket = null;
     beforeEach(() =>{
         bucket = new Bucket();
-        console.log("Bucket Construct")
     })
-    afterEach(async () => {
+    afterEach(async (done) => {
         bucket.destroyBucket()
-        console.log("Bucket destroyed")
+        done();
     })
     
     it("Create a new bucket in S3", async () => {
@@ -32,7 +31,7 @@ describe( "All Tests", () => {
         await bucket.createBucket();         
         await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
         var input = await bucket.exists({objectUrl: "readme"})
-        assert.strictEqual(input, true);  
+        assert.strictEqual(input, true); 
             
     });
     
