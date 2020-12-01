@@ -1,6 +1,18 @@
 # just_BI_api
-face regnognition idk
 
+# Installing
+run:  
+`npm i`
+  
+rename config.json.example to config.json:  
+`cp config.json.example config.json`  
+  
+configure your config.json  
+You're ready!
+  
+# Tests TDD
+open your terminal on project repo and write
+`npm test`
 # awscli
 configure awscli
 
