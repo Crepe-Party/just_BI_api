@@ -49,25 +49,17 @@ describe( "All Tests", () => {
         //then
         assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true);  
     })
-
-    it("search inexisting file", async () => {  
-        await bucket.createBucket();  
-        
-        var input = await bucket.exists({objectUrl: "readme"});
-
-        assert.strictEqual(input, false);    
-        
-    });
     
-    it("Download existing file in S3", async () => {  
+    it("DownloadObject_NominalCase_Success", async () => {  
+        //given
         await bucket.createBucket();  
-        
         var destinationPath = path.join(__dirname, 's3data.md');
         await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
+        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true)
+        //when
         await bucket.downloadObject({ objectUrl: "readme", destinationUri: destinationPath});
-        
-        assert.strictEqual(fs.existsSync(destinationPath), true);    
-        
+        //then
+        assert.strictEqual(fs.existsSync(destinationPath), true);
     });
     
     it("bucket in S3 exists?", async () => {  
