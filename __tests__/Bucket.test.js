@@ -20,22 +20,33 @@ describe( "All Tests", () => {
         console.log("Bucket destroyed")
     })
     
-    it("Create a new bucket in S3", async () => {
-        
+    it("CreateObject_CreateNewBucket_Success", async () => {
+        //given
+        assert.strictEqual(await bucket.exists(), false);    
+        //when
         var input = await bucket.createBucket();
         var output = { Location: 'http://awsnode.actualit.info.s3.amazonaws.com/' };
-        assert.strictEqual(input.Location ,output.Location);    
-        
+        //then
+        assert.strictEqual(input.Location ,output.Location);
     });
     
-    it("create a file", async () => {     
-        await bucket.createBucket();         
+    it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {   
+        //given  
+        await bucket.createBucket();
+        assert.strictEqual(bucket.exists(), true);
+        //when
+        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
+        var input = await bucket.exists({objectUrl: "readme"})
+        //then
+        assert.strictEqual(input, true);            
+    });
+    
+    it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
         await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
         var input = await bucket.exists({objectUrl: "readme"})
         assert.strictEqual(input, true);  
-            
-    });
-    
+    })
+
     it("search inexisting file", async () => {  
         await bucket.createBucket();  
         
