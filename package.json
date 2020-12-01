@@ -3,7 +3,8 @@
         "test": "mocha"
     },
     "dependencies": {
-        "aws-sdk": "^2.799.0"
+        "aws-sdk": "^2.799.0",
+        "node-fetch": "^2.6.1"
     },
     "devDependencies": {
         "mocha": "^8.2.1"
