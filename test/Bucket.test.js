@@ -3,6 +3,7 @@ var Bucket = require('../class/Bucket');
 var fs = require('fs');
 var path = require('path');
 const assert = require( "assert" );
+const bucketUrl = "awsnode.actualit.info"
 
 //Jest not work on class... I've transformed it to next tests
 
@@ -86,20 +87,16 @@ describe( "ini", () => {
         var input = await bucket.exists({objectUrl: "notExistingFile"});
         //then
         assert.strictEqual(input, false);  
-        
     });
     
-    it("Remove Object in S3, bucket empty", async () => {  
-        await bucket.createBucket();  
-        
-
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        await bucket.removeObject({objectUrl: "readme"});
-
-        var input = await bucket.exists({objectUrl: "readme"});
-
-        assert.strictEqual(input, false);  
-        
+    it("RemoveObject_EmptyBucket_Success", async () => {  
+        //given
+        await bucket.createObject();
+        assert.strictEqual(await bucket.exists(bucketUrl), true); 
+        //when
+        await bucket.removeObject(bucketUrl);
+        //then
+        assert.strictEqual(await bucket.exists(bucketUrl), false);
     });
     
     it("Remove Object in S3, bucket not empty", async () => {  
