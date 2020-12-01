@@ -34,17 +34,20 @@ describe( "All Tests", () => {
         //given  
         await bucket.createBucket();
         assert.strictEqual(bucket.exists(), true);
+        assert.strictEqual(bucket.exists({objectUrl: "readme"}), false);
         //when
         await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        var input = await bucket.exists({objectUrl: "readme"})
         //then
-        assert.strictEqual(input, true);            
+        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true);            
     });
     
     it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
+        //given
+        assert.strictEqual(await bucket.exists(), false);  
+        //when
         await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        var input = await bucket.exists({objectUrl: "readme"})
-        assert.strictEqual(input, true);  
+        //then
+        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true);  
     })
 
     it("search inexisting file", async () => {  
