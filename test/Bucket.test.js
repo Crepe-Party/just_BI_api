@@ -79,12 +79,12 @@ describe( "ini", () => {
         assert.strictEqual(input, false);          
     });
     
-    it("Search inexisting Object in S3", async () => {  
+    it("Exists_ObjectNotExistFile_Success", async () => {  
+        //given
         await bucket.createBucket();  
-        
-
-        var input = await bucket.exists({objectUrl: "readme"});
-
+        //when
+        var input = await bucket.exists({objectUrl: "notExistingFile"});
+        //then
         assert.strictEqual(input, false);  
         
     });
