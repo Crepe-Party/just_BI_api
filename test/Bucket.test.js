@@ -4,13 +4,13 @@ var fs = require('fs');
 var path = require('path');
 const assert = require( "assert" );
 const bucketUrl = "awsnode.actualit.info"
+const filePath = "README.md"
+const fileUrl = bucketUrl+"/"+filePath
 
 //Jest not work on class... I've transformed it to next tests
 
 //run test by test, i don't know why the async not work... (it's a current bug of framework, because we use async on afterEach)
 describe( "ini", () => {
-    
-    var fileContent = fs.readFileSync("./README.md");
     var bucket = null;
     beforeEach(() =>{
         bucket = new Bucket();
@@ -22,111 +22,90 @@ describe( "ini", () => {
     
     it("CreateObject_CreateNewBucket_Success", async () => {
         //given
-        assert.strictEqual(await bucket.exists(), false);    
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), false);    
         //when
-        var input = await bucket.createBucket();
-        var output = { Location: 'http://awsnode.actualit.info.s3.amazonaws.com/' };
+        await bucket.createObject({objectUrl: bucketUrl});
         //then
-        assert.strictEqual(input.Location ,output.Location);
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), true);
     });
     
     it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {   
         //given  
-        await bucket.createBucket();
-        assert.strictEqual(bucket.exists(), true);
-        assert.strictEqual(bucket.exists({objectUrl: "readme"}), false);
+        await bucket.createObject({objectUrl: bucketUrl});
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), true);
+        assert.strictEqual(await bucket.exists({objectUrl: fileUrl}), false);
         //when
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
+        await bucket.createObject({ objectUrl: fileUrl, filePath: filePath});
         //then
-        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true);            
+        assert.strictEqual(await bucket.exists({objectUrl: fileUrl}), true);            
     });
     
     it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
         //given
-        assert.strictEqual(await bucket.exists(), false);  
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), false);  
+        assert.strictEqual(await bucket.exists({objectUrl: fileUrl}), false);  
         //when
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
+        await bucket.createObject({ objectUrl: fileUrl, filePath: filePath});
         //then
-        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true);  
+        assert.strictEqual(await bucket.exists({objectUrl: filePath}), true);  
     })
     
     it("DownloadObject_NominalCase_Success", async () => {  
-        //given
-        await bucket.createBucket();  
-        var destinationPath = path.join(__dirname, 's3data.md');
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        assert.strictEqual(await bucket.exists({objectUrl: "readme"}), true)
+        //given 
+        await bucket.createObject({ objectUrl: fileUrl, filePath: filePath});
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), true)
         //when
-        await bucket.downloadObject({ objectUrl: "readme", destinationUri: destinationPath});
+        await bucket.downloadObject({ objectUrl: fileUrl, destinationUri: filePath});
         //then
-        assert.strictEqual(fs.existsSync(destinationPath), true);
+        assert.strictEqual(fs.existsSync(filePath), true);
     });
     
     it("Exists_NominalCase_Success", async () => {  
         //given
-        await bucket.createBucket();  
+        await bucket.createObject({objectUrl: bucketUrl});  
         //when
-        var input = await bucket.bucketExists();
+        var input = await bucket.exists({objectUrl: bucketUrl});
         //then
         assert.strictEqual(input, true);
     });
     
     it("Exists_ObjectNotExistBucket_Success", async () => {
         //given
-        bucket = new Bucket("fake")
+        var notExistingBucket = "notExistingBucket"
         //when
-        var input = await bucket.bucketExists();
+        var input = await bucket.exists({objectUrl: notExistingBucket});
         //then
         assert.strictEqual(input, false);          
     });
     
-    it("Exists_ObjectNotExistFile_Success", async () => {  
+    it("Exists_ObjectNotExistFile_Success", async () => {
         //given
-        await bucket.createBucket();  
+        await bucket.createObject({ objectUrl: bucketUrl});
+        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl}), false);
         //when
-        var input = await bucket.exists({objectUrl: "notExistingFile"});
+        var input = await bucket.exists({objectUrl: "notExistingFile.jpg"});
         //then
-        assert.strictEqual(input, false);  
+        assert.strictEqual(input, false);
     });
     
     it("RemoveObject_EmptyBucket_Success", async () => {  
         //given
-        await bucket.createObject();
-        assert.strictEqual(await bucket.exists(), true); 
+        await bucket.createObject({objectUrl: bucketUrl});
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), true); 
         //when
-        await bucket.removeObject();
+        await bucket.removeObject({objectUrl: bucketUrl});
         //then
-        assert.strictEqual(await bucket.exists(), false);
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), false);
     });
     
     it("RemoveObject_NotEmptyBucket_Success", async () => {  
         //given          
-        await bucket.createObject({ objectUrl: fileContent, filePath: "/readme"});
+        await bucket.createObject({objectUrl: fileUrl, filePath: filePath});
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), true);
+        assert.strictEqual(await bucket.exists({objectUrl: fileUrl, filePath: filePath}), true);
         //when
-        await bucket.removeObject();
+        await bucket.removeObject({objectUrl: bucketUrl});
         //then
-        assert.strictEqual(await bucket.exists(), false);  
-    });
-
-    it("Delete a bucket in S3, with files", async () => {  
-        await bucket.createBucket();  
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme2"});
-        var objects = await bucket.listObjects();
-        // assert.notStrictEqual(objects.count, 0);  WE can't execute more one test by method
-
-        var input = await bucket.destroyBucket();
-        var output = {};
-        assert.strictEqual(input.toString(), output.toString());  
-        
-    });
-    
-    it("Delete a bucket in S3, without files", async () => {  
-        await bucket.createBucket();  
-        
-        var input = await bucket.destroyBucket();
-        var output = {};
-        assert.strictEqual(input.toString(), output.toString());  
-        //normally an error appered after this test, because i try to delete ab bucket already deleted
+        assert.strictEqual(await bucket.exists({objectUrl: bucketUrl}), false);  
     });
 });
