@@ -92,24 +92,20 @@ describe( "ini", () => {
     it("RemoveObject_EmptyBucket_Success", async () => {  
         //given
         await bucket.createObject();
-        assert.strictEqual(await bucket.exists(bucketUrl), true); 
+        assert.strictEqual(await bucket.exists(), true); 
         //when
-        await bucket.removeObject(bucketUrl);
+        await bucket.removeObject();
         //then
-        assert.strictEqual(await bucket.exists(bucketUrl), false);
+        assert.strictEqual(await bucket.exists(), false);
     });
     
-    it("Remove Object in S3, bucket not empty", async () => {  
-        await bucket.createBucket();          
-
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme"});
-        await bucket.createObject({ objectUrl: fileContent, filePath: "readme2"});
-
-        await bucket.removeObject({objectUrl: "readme"});
-        var input = await bucket.exists({objectUrl: "readme"});
-
-        assert.strictEqual(input, false);  
-        
+    it("RemoveObject_NotEmptyBucket_Success", async () => {  
+        //given          
+        await bucket.createObject({ objectUrl: fileContent, filePath: "/readme"});
+        //when
+        await bucket.removeObject();
+        //then
+        assert.strictEqual(await bucket.exists(), false);  
     });
 
     it("Delete a bucket in S3, with files", async () => {  
