@@ -15,7 +15,7 @@ describe( "ini", () => {
         bucket = new Bucket();
     })
     afterEach(async (done) => {
-        bucket.destroyBucket()
+        await bucket.destroyBucket()
         done();
     })
     
@@ -61,17 +61,16 @@ describe( "ini", () => {
         assert.strictEqual(fs.existsSync(destinationPath), true);
     });
     
-    it("bucket in S3 exists?", async () => {  
+    it("Exists_NominalCase_Success", async () => {  
+        //given
         await bucket.createBucket();  
-        
-
+        //when
         var input = await bucket.bucketExists();
-
-        assert.strictEqual(input, true);  
-        
+        //then
+        assert.strictEqual(input, true);
     });
     
-    it("Search inexisting Bucket in S3", async () => {
+    it("Exists_ObjectNotExistBucket_Success", async () => {
         bucket = new Bucket("fake")
         var input = await bucket.bucketExists();
 
