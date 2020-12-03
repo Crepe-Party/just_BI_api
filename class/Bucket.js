@@ -29,15 +29,26 @@ class Bucket extends AbstractBucketManager {
     }
     async objectExists({ objectUrl }) {
         try {
-            await this.s3.getObject({ Bucket: this.name, Key: objectUrl }).promise()
+            
+            var path = objectUrl.substring(0, objectUrl.lastIndexOf("/"));
+            var name = objectUrl.substring(objectUrl.lastIndexOf("/") + 1, objectUrl.length);
+            await this.s3.getObject({ Bucket: path, Key: name }).promise()
             return true;
         } catch {
             return false;
         }
     }
 
-    async exists({ objectUrl }) {
-        return objectUrl.indexOf("/") != -1 ? this.objectExists({ objectUrl }) : this.bucketExists();
+    async exists({ objectUrl }) {         
+        try{
+            if (objectUrl.indexOf("/") == -1 ){
+                return await this.bucketExists();
+            }else{       
+                return await this.objectExists({ objectUrl })
+            }
+        }catch{
+            return false
+        }
     }
 
     async getDataFromUrl(url) {
@@ -46,54 +57,73 @@ class Bucket extends AbstractBucketManager {
         return text;
     }
 
-    async createObject({ objectUrl = this.name, filePath = "" }) {
-        if (objectUrl.indexOf("/") != -1) {
-            return this.s3.createBucket({ Bucket: objectUrl }).promise();
-        }
-        else {
-            var ext = path.extname(filePath)
-            var basename = path.basename(filePath)
-            var filename = `${basename}.${ext}`
-            var content;
-            if (fs.existsSync(myfile)) {
-                if (File.exists(filePath))
-                    content = fs.readFileSync(filePath)
+    async checkBucket({ objectUrl }){
+        if(! await this.bucketExists()) 
+            this.s3.createBucket({ Bucket: objectUrl }).promise();
+    }
+
+    async createObject({ objectUrl = this.name, filePath = "" }) {   
+        try{
+            if (objectUrl.indexOf("/") == -1) {
+                await this.checkBucket({objectUrl})
+                return this.s3.createBucket({ Bucket: objectUrl }).promise();
             }
             else {
-                content = this.getDataFromUrl(filePath)
+                //erreur dans ce block
+                await this.checkBucket({objectUrl})
+                var filename = path.basename(filePath)
+                // var filename = `${basename}.${ext}`
+                var content;
+                if (fs.existsSync(filePath)) {
+                    content = fs.readFileSync(filePath)
+                }
+                else {
+                    content = this.getDataFromUrl(filePath)
+                }
+                
+                return this.s3.putObject({
+                    Bucket: this.name,
+                    Key: filename, //name stored in S3
+                    Body: content
+                }).promise();
             }
-            
-            return this.s3.putObject({
-                Bucket: this.name,
-                Key: filename, //name stored in S3
-                Body: content
-            }).promise();
+        }            
+        catch{
+            return false
         }
     }
 
     async listObjects() {
         return this.s3.listObjectsV2({ Bucket: this.name }).promise();
     }
-    
+
     async destroyBucket() {
-        var objects = await this.listObjects()
-        objects.Contents.forEach(object => {
-            this.removeObject({ objectUrl: object.Key })
-        });
-        return this.s3.deleteBucket({ Bucket: this.name }).promise();
+        try{
+            var objects = await this.listObjects()
+            objects.Contents.forEach(object => {
+                this.removeObject({ objectUrl: object.Key })
+            });
+            return this.s3.deleteBucket({ Bucket: this.name }).promise();    
+        } catch{
+            return false
+        }
     }
 
     async removeObject({ objectUrl }) {
-        if (objectUrl.indexOf("/") != -1) {
-            return this.s3.deleteObject({ Bucket: this.name, Key: objectUrl }).promise()
+        try{
+            if (objectUrl.indexOf("/") == -1) {
+                return this.s3.deleteObject({ Bucket: this.name, Key: objectUrl }).promise()
+            }
+            return this.destroyBucket()
+        }catch{
+            return false
         }
-        return this.destroyBucket()
     }
 
     //TODO refactor
     async downloadObject({ objectUrl, destinationUri }) {
         try {
-            var readStream = this.s3.getObject({ Bucket: this.name, Key: objectUrl }).createReadStream();
+            var readStream = this.s3.getObject({ Bucket: objectUrl, Key: path.basename(objectUrl) }).createReadStream();
             let writeStream = fs.createWriteStream(destinationUri);
             readStream.pipe(writeStream);
             return true;
