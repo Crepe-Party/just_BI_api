@@ -7,10 +7,9 @@ const fetch = require('node-fetch');
 
 const AbstractBucketManager = require('./AbstractBucketManager');
 class Bucket extends AbstractBucketManager {
-    constructor(name = "awsnodecrash.actualit.info") {
+    constructor() {
         super()
         aws.config.loadFromPath('./config.json');
-        this.name = name;
 
         this.s3 = new aws.S3({
             accessKeyId: aws.config.accessKeyId,
@@ -19,19 +18,11 @@ class Bucket extends AbstractBucketManager {
         });
     }
 
-    async bucketExists() {
-        try {
-            await this.s3.headBucket({ Bucket: this.name }).promise()
-            return true;
-        } catch {
-            return false;
-        }
-    }
     async objectExists({ objectUrl }) {
         try {
-            
-            var path = objectUrl.substring(0, objectUrl.lastIndexOf("/"));
-            var name = objectUrl.substring(objectUrl.lastIndexOf("/") + 1, objectUrl.length);
+
+            var path = objectUrl.substring(0, objectUrl.indexOf("/"));
+            var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
             await this.s3.getObject({ Bucket: path, Key: name }).promise()
             return true;
         } catch {
@@ -39,14 +30,23 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
-    async exists({ objectUrl }) {         
-        try{
-            if (objectUrl.indexOf("/") == -1 ){
-                return await this.bucketExists();
-            }else{       
+    async bucketExists({ bucket }) {
+        try {
+            await this.s3.headBucket({ Bucket: bucket }).promise()
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async exists({ objectUrl }) {
+        try {
+            if (objectUrl.indexOf("/") == -1) {
+                return await this.bucketExists({ bucket: objectUrl });
+            } else {
                 return await this.objectExists({ objectUrl })
             }
-        }catch{
+        } catch {
             return false
         }
     }
@@ -57,21 +57,25 @@ class Bucket extends AbstractBucketManager {
         return text;
     }
 
-    async checkBucket({ objectUrl }){
-        if(! await this.bucketExists()) 
-            this.s3.createBucket({ Bucket: objectUrl }).promise();
+
+    async checkAndCreateBucket({ bucket }) {
+        if (!await this.bucketExists({ bucket })) {
+            return await this.s3.createBucket({ Bucket: bucket }).promise();
+        }
     }
 
-    async createObject({ objectUrl = this.name, filePath = "" }) {   
-        try{
-            if (objectUrl.indexOf("/") == -1) {
-                await this.checkBucket({objectUrl})
-                return this.s3.createBucket({ Bucket: objectUrl }).promise();
+    async createObject({ objectUrl, filePath = "" }) {
+        //example : myBucket/coucou
+        var path = objectUrl.substring(0, objectUrl.indexOf("/")); //path = myBucket
+        var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);//name = coucou       
+        try {
+            if (path == "") {
+                return await this.checkAndCreateBucket({ bucket: name })
             }
             else {
-                //erreur dans ce block
-                await this.checkBucket({objectUrl})
-                var filename = path.basename(filePath)
+                await this.checkAndCreateBucket({ bucket: path })
+
+                // var filename = path.basename(filePath)
                 // var filename = `${basename}.${ext}`
                 var content;
                 if (fs.existsSync(filePath)) {
@@ -80,46 +84,57 @@ class Bucket extends AbstractBucketManager {
                 else {
                     content = this.getDataFromUrl(filePath)
                 }
-                
+
                 return this.s3.putObject({
-                    Bucket: this.name,
-                    Key: filename, //name stored in S3
+                    Bucket: path,
+                    Key: name, //name stored in S3
                     Body: content
                 }).promise();
             }
-        }            
-        catch{
+        }
+        catch (e) {
+            console.log(e)
             return false
         }
     }
 
-    async listObjects({bucket}) {
+    async listObjects({ bucket }) {
         return this.s3.listObjectsV2({ Bucket: bucket }).promise();
     }
 
     async destroyBucket({ bucket }) {
-        try{
-            var objects = await this.listObjects({bucket})
-            objects.Contents.forEach(object => {
-                this.removeObject({ objectUrl: `${bucket}/${object.Key}` })
-            });
-            return this.s3.deleteBucket({ Bucket: bucket }).promise();    
-        } catch{
+        try {
+            const { Contents } = await this.listObjects({ bucket })
+            if (Contents.length > 0) {
+                await this.s3
+                    .deleteObjects({
+                        Bucket: bucket,
+                        Delete: {
+                            Objects: Contents.map(({ Key }) => ({ Key }))
+                        }
+                    })
+                    .promise();
+            }
+            return await this.s3.deleteBucket({ Bucket: bucket }).promise();
+        } catch (e) {
+            console.log(e)
             return false
         }
     }
 
     async removeObject({ objectUrl }) {
-        try{
-            
-            var path = objectUrl.substring(0, objectUrl.lastIndexOf("/"));
-            var name = objectUrl.substring(objectUrl.lastIndexOf("/") + 1, objectUrl.length);
+        try {
+
+            var path = objectUrl.substring(0, objectUrl.indexOf("/"));
+            var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
+
             if (path != "") {
-                return this.s3.deleteObject({ Bucket: path, Key: name }).promise()
+                return await this.s3.deleteObject({ Bucket: path, Key: name }).promise()
             }
 
-            return this.destroyBucket({bucket: name})
-        }catch{
+            return await this.destroyBucket({ bucket: name })
+        } catch (e) {
+            console.log(e)
             return false
         }
     }
@@ -132,6 +147,7 @@ class Bucket extends AbstractBucketManager {
             readStream.pipe(writeStream);
             return true;
         } catch (e) {
+            console.log(e)
             return false;
         }
     }
