@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 
 const AbstractBucketManager = require('./AbstractBucketManager');
 class Bucket extends AbstractBucketManager {
-    constructor(name = "awsnode.actualit.info") {
+    constructor(name = "awsnodecrash.actualit.info") {
         super()
         aws.config.loadFromPath('./config.json');
         this.name = name;
@@ -93,17 +93,17 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
-    async listObjects() {
-        return this.s3.listObjectsV2({ Bucket: this.name }).promise();
+    async listObjects({bucket}) {
+        return this.s3.listObjectsV2({ Bucket: bucket }).promise();
     }
 
-    async destroyBucket() {
+    async destroyBucket({ bucket }) {
         try{
-            var objects = await this.listObjects()
+            var objects = await this.listObjects({bucket})
             objects.Contents.forEach(object => {
-                this.removeObject({ objectUrl: object.Key })
+                this.removeObject({ objectUrl: `${bucket}/${object.Key}` })
             });
-            return this.s3.deleteBucket({ Bucket: this.name }).promise();    
+            return this.s3.deleteBucket({ Bucket: bucket }).promise();    
         } catch{
             return false
         }
@@ -111,10 +111,14 @@ class Bucket extends AbstractBucketManager {
 
     async removeObject({ objectUrl }) {
         try{
-            if (objectUrl.indexOf("/") == -1) {
-                return this.s3.deleteObject({ Bucket: this.name, Key: objectUrl }).promise()
+            
+            var path = objectUrl.substring(0, objectUrl.lastIndexOf("/"));
+            var name = objectUrl.substring(objectUrl.lastIndexOf("/") + 1, objectUrl.length);
+            if (path != "") {
+                return this.s3.deleteObject({ Bucket: path, Key: name }).promise()
             }
-            return this.destroyBucket()
+
+            return this.destroyBucket({bucket: name})
         }catch{
             return false
         }

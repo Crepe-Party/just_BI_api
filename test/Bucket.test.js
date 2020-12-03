@@ -2,52 +2,45 @@
 var Bucket = require('../class/Bucket');
 var fs = require('fs');
 const assert = require("assert");
-const bucketUrl = "awsnode.actualit.info"
+const bucketUrl = "awsnodecrash.actualit.info"
 const filename = "README.md"
 const fullPathToFile = __dirname + "/../" + filename
 const fullPathToDestination = __dirname + "/../"
 const fileUrl = bucketUrl + "/" + filename
 
-//Jest not work on class... I've transformed it to next tests
-
-//run test by test, i don't know why the async not work... (it's a current bug of framework, because we use async on afterEach)
 describe("init", () => {
     var bucket = null;
     beforeEach(() => {
         bucket = new Bucket();
     })
 
-    // afterEach(async (done) => {
-    //     if(await bucket.exists({objectUrl: bucketUrl}))
-    //         await bucket.destroyBucket()
-    // })
+    afterEach(async () => {
+        if(await bucket.exists({objectUrl: bucketUrl}))
+            await bucket.removeObject({objectUrl: bucketUrl})
+    })
 
-    it("CreateObject_CreateNewBucket_Success", async () => {
+    it("CreateObject_CreateNewBucket_Success", async () => { //done
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
         //when
         await bucket.createObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
     });
 
     it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {
-
-        //given  
-        await bucket.createObject({ objectUrl: bucketUrl });
-        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
-        assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), false);
-        //when
-        await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
-        //then
-        assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+            //given  
+            await bucket.createObject({ objectUrl: bucketUrl });
+            assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
+            assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), false);
+            //when
+            await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
+            //then
+            assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
+            console.log("fini wesh")
     });
 
-    it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
+    it("CreateObject_CreateObjectBucketNotExist_Success", async (done) => {
 
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
@@ -56,11 +49,10 @@ describe("init", () => {
         await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     })
 
-    it("DownloadObject_NominalCase_Success", async () => {
+    it("DownloadObject_NominalCase_Success", async (done) => {
 
         var pathFileDownloaded = fullPathToDestination + "downloaded." + filename
         //given 
@@ -70,11 +62,10 @@ describe("init", () => {
         await bucket.downloadObject({ objectUrl: fileUrl, destinationUri: pathFileDownloaded });
         //then
         assert.strictEqual(fs.existsSync(pathFileDownloaded), true);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 
-    it("Exists_NominalCase_Success", async () => {
+    it("Exists_NominalCase_Success", async (done) => {
 
         //given
         await bucket.createObject({ objectUrl: bucketUrl });
@@ -82,11 +73,10 @@ describe("init", () => {
         var input = await bucket.exists({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(input, true);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 
-    it("Exists_ObjectNotExistBucket_Success", async () => {
+    it("Exists_ObjectNotExistBucket_Success", async (done) => {
 
         //given
         var notExistingBucket = "notExistingBucket"
@@ -94,11 +84,10 @@ describe("init", () => {
         var input = await bucket.exists({ objectUrl: notExistingBucket });
         //then
         assert.strictEqual(input, false);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 
-    it("Exists_ObjectNotExistFile_Success", async () => {
+    it("Exists_ObjectNotExistFile_Success", async (done) => {
 
         //given
         await bucket.createObject({ objectUrl: bucketUrl });
@@ -107,11 +96,10 @@ describe("init", () => {
         var input = await bucket.exists({ objectUrl: "notExistingFile.jpg" });
         //then
         assert.strictEqual(input, false);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 
-    it("RemoveObject_EmptyBucket_Success", async () => {
+    it("RemoveObject_EmptyBucket_Success", async (done) => {
 
         //given
         await bucket.createObject({ objectUrl: bucketUrl });
@@ -120,11 +108,10 @@ describe("init", () => {
         await bucket.removeObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 
-    it("RemoveObject_NotEmptyBucket_Success", async () => {
+    it("RemoveObject_NotEmptyBucket_Success", async (done) => {
 
         //given          
         await bucket.createObject({ objectUrl: fileUrl, filePath: filePath });
@@ -134,7 +121,6 @@ describe("init", () => {
         await bucket.removeObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
-        if (await bucket.exists({ objectUrl: bucketUrl }))
-            await bucket.destroyBucket()
+        done()
     });
 });
