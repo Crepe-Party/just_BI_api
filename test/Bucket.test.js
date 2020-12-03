@@ -15,11 +15,11 @@ describe("init", () => {
     })
 
     afterEach(async () => {
-        if(await bucket.exists({objectUrl: bucketUrl}))
-            await bucket.removeObject({objectUrl: bucketUrl})
+        // if(await bucket.exists({objectUrl: bucketUrl}))
+            // await bucket.removeObject({objectUrl: bucketUrl})
     })
 
-    it("CreateObject_CreateNewBucket_Success", async () => { //done
+    it("CreateObject_CreateNewBucket_Success", async () => { //success
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
         //when
@@ -28,7 +28,7 @@ describe("init", () => {
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
     }).timeout(10000);
 
-    it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {
+    it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {//success
         //given  
         await bucket.createObject({ objectUrl: bucketUrl });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
@@ -39,7 +39,7 @@ describe("init", () => {
         assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
     }).timeout(10000);
 
-    it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
+    it("CreateObject_CreateObjectBucketNotExist_Success", async () => { //success
 
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);

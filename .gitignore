@@ -109,3 +109,4 @@ dist
 config.json
 
 package-lock.json
+downloaded.*
