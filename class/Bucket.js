@@ -127,6 +127,8 @@ class Bucket extends AbstractBucketManager {
 
     async removeObject({ objectUrl }) {
         try {
+            if(!await this.exists({objectUrl: objectUrl}))
+                return false
 
             const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
 
