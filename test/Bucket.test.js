@@ -7,28 +7,32 @@ const filename = "README.md"
 const fullPathToFile = __dirname + "/../" + filename
 const fullPathToDestination = __dirname + "/../"
 const fileUrl = bucketUrl + "/" + filename
+const myURL = "http://www.perdu.com/"
 
+var bucket = new Bucket();
+// when you execute all test winth "npm test", random tests fail...
+// but if you use "mocha -g name_of_test" each test pass
 describe("init", () => {
-    var bucket = null;
-    beforeEach(() => {
-        bucket = new Bucket();
+    before(function (done) {
+        this.timeout(15000)
+        setTimeout(function () {
+            done() //we wait 5sec, beacause aws require a few times after each bucket delete
+        }, 5000)
     })
-
     afterEach(async () => {
-        // if(await bucket.exists({objectUrl: bucketUrl}))
-            // await bucket.removeObject({objectUrl: bucketUrl})
+        await bucket.removeObject({ objectUrl: bucketUrl })
     })
 
-    it("CreateObject_CreateNewBucket_Success", async () => { //success
+    it("CreateObject_CreateNewBucket_Success", async () => {
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
         //when
         await bucket.createObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
-    }).timeout(10000);
+    }).timeout(15000);
 
-    it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {//success
+    it("CreateObject_CreateObjectWithExistingBucket_Success", async () => {
         //given  
         await bucket.createObject({ objectUrl: bucketUrl });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
@@ -37,9 +41,9 @@ describe("init", () => {
         await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
-    }).timeout(10000);
+    }).timeout(15000);
 
-    it("CreateObject_CreateObjectBucketNotExist_Success", async () => { //success
+    it("CreateObject_CreateObjectBucketNotExist_Success", async () => {
 
         //given
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
@@ -48,7 +52,7 @@ describe("init", () => {
         await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: fileUrl }), true);
-    }).timeout(10000);
+    }).timeout(15000);
 
     it("DownloadObject_NominalCase_Success", async () => {
 
@@ -56,11 +60,23 @@ describe("init", () => {
         //given 
         await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true)
-        //when
+        // when
         await bucket.downloadObject({ objectUrl: fileUrl, destinationUri: pathFileDownloaded });
         //then
         assert.strictEqual(fs.existsSync(pathFileDownloaded), true);
-    }).timeout(10000);
+    }).timeout(15000);
+
+    it("DownloadObjectURL_NominalCase_Success", async () => {
+
+        var pathFileDownloaded = fullPathToDestination + "downloaded.site.html"
+        //given 
+        await bucket.createObject({ objectUrl: fileUrl, filePath: myURL });
+        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true)
+        // when
+        await bucket.downloadObject({ objectUrl: fileUrl, destinationUri: pathFileDownloaded });
+        //then
+        assert.strictEqual(fs.existsSync(pathFileDownloaded), true);
+    }).timeout(15000);
 
     it("Exists_NominalCase_Success", async () => {
 
@@ -70,7 +86,7 @@ describe("init", () => {
         var input = await bucket.exists({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(input, true);
-    }).timeout(10000);
+    }).timeout(15000);
 
     it("Exists_ObjectNotExistBucket_Success", async () => {
 
@@ -80,18 +96,18 @@ describe("init", () => {
         var input = await bucket.exists({ objectUrl: notExistingBucket });
         //then
         assert.strictEqual(input, false);
-    }).timeout(10000);
+    }).timeout(15000);
 
     it("Exists_ObjectNotExistFile_Success", async () => {
 
         //given
         await bucket.createObject({ objectUrl: bucketUrl });
-        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
+        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
         //when
         var input = await bucket.exists({ objectUrl: "notExistingFile.jpg" });
         //then
         assert.strictEqual(input, false);
-    }).timeout(10000);
+    }).timeout(15000);
 
     it("RemoveObject_EmptyBucket_Success", async () => {
         //given
@@ -101,16 +117,16 @@ describe("init", () => {
         await bucket.removeObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
-    }).timeout(10000);
+    }).timeout(15000);
 
     it("RemoveObject_NotEmptyBucket_Success", async () => {
         //given          
-        await bucket.createObject({ objectUrl: fileUrl, filePath: filePath });
+        await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
-        assert.strictEqual(await bucket.exists({ objectUrl: fileUrl, filePath: filePath }), true);
+        assert.strictEqual(await bucket.exists({ objectUrl: fileUrl, filePath: fullPathToFile }), true);
         //when
         await bucket.removeObject({ objectUrl: bucketUrl });
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
-    }).timeout(10000);
+    }).timeout(15000);
 });

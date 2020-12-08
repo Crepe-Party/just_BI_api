@@ -17,13 +17,20 @@ class Bucket extends AbstractBucketManager {
             region: aws.config.region,
         });
     }
-
+    getbucketNameAndKey({ objectUrl }){
+        var bucket = objectUrl.substring(0, objectUrl.indexOf("/"));
+        var key = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
+        if(bucket == "")
+        {
+            bucket = key
+            key = ""
+        }
+        return {bucket,key}
+    }
     async objectExists({ objectUrl }) {
         try {
-
-            var path = objectUrl.substring(0, objectUrl.indexOf("/"));
-            var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
-            await this.s3.getObject({ Bucket: path, Key: name }).promise()
+            const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
+            await this.s3.getObject({ Bucket: bucket, Key: key }).promise()
             return true;
         } catch {
             return false;
@@ -64,30 +71,26 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
-    async createObject({ objectUrl, filePath = "" }) {
-        //example : myBucket/coucou
-        var path = objectUrl.substring(0, objectUrl.indexOf("/")); //path = myBucket
-        var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);//name = coucou       
+    async createObject({ objectUrl, filePath = "" }) {   
+        const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
         try {
-            if (path == "") {
-                return await this.checkAndCreateBucket({ bucket: name })
+            if (key == "") {
+                return await this.checkAndCreateBucket({ bucket: bucket })
             }
             else {
-                await this.checkAndCreateBucket({ bucket: path })
+                await this.checkAndCreateBucket({ bucket: bucket })
 
-                // var filename = path.basename(filePath)
-                // var filename = `${basename}.${ext}`
                 var content;
                 if (fs.existsSync(filePath)) {
                     content = fs.readFileSync(filePath)
                 }
                 else {
-                    content = this.getDataFromUrl(filePath)
+                    content = await this.getDataFromUrl(filePath)
                 }
 
                 return this.s3.putObject({
-                    Bucket: path,
-                    Key: name, //name stored in S3
+                    Bucket: bucket,
+                    Key: key, //name stored in S3
                     Body: content
                 }).promise();
             }
@@ -124,27 +127,27 @@ class Bucket extends AbstractBucketManager {
 
     async removeObject({ objectUrl }) {
         try {
+            if(!await this.exists({objectUrl: objectUrl}))
+                return false
 
-            var path = objectUrl.substring(0, objectUrl.indexOf("/"));
-            var name = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
+            const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
 
-            if (path != "") {
-                return await this.s3.deleteObject({ Bucket: path, Key: name }).promise()
+            if (key != "") {
+                return await this.s3.deleteObject({ Bucket: bucket, Key: key }).promise()
             }
 
-            return await this.destroyBucket({ bucket: name })
+            return await this.destroyBucket({ bucket: bucket })
         } catch (e) {
             console.log(e)
             return false
         }
     }
 
-    //TODO refactor
     async downloadObject({ objectUrl, destinationUri }) {
         try {
-            var readStream = this.s3.getObject({ Bucket: objectUrl, Key: path.basename(objectUrl) }).createReadStream();
-            let writeStream = fs.createWriteStream(destinationUri);
-            readStream.pipe(writeStream);
+            const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
+            var res = await this.s3.getObject({ Bucket: bucket, Key: key }).promise()
+            fs.writeFileSync(destinationUri, res.Body);
             return true;
         } catch (e) {
             console.log(e)
