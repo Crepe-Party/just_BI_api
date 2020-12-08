@@ -1,6 +1,18 @@
 # just_BI_api
-face regnognition idk
 
+# Installing
+run:  
+`npm i`
+  
+rename config.json.example to config.json:  
+`cp config.json.example config.json`  
+  
+configure your config.json  
+You're ready!
+  
+# Tests TDD
+open your terminal on project repo and write
+`npm test`
 # awscli
 configure awscli
 
@@ -18,7 +30,7 @@ Create bucket
 
     aws s3 mb s3://awsnode.actualit.info
 
-Delete buckets (recursively)
+Delete bucket (recursively)
 
     aws s3 rb s3://awsnode.actualit.info --force
 
@@ -26,7 +38,7 @@ Upload object
 
     aws s3 cp awstest.txt s3://awsnode.actualit.info/example/
     // to copy the file on example dir do not forget the /,  
-    // without the / your copy rename awstest.txt into example
+    // without the / your copy'll be renamed from awstest.txt to example
 
 Delete object
 
