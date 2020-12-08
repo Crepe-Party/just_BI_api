@@ -7,6 +7,10 @@ const fetch = require('node-fetch');
 
 const AbstractBucketManager = require('./AbstractBucketManager');
 class Bucket extends AbstractBucketManager {
+    /**
+     * @constructor
+     * 
+     */
     constructor() {
         super()
         aws.config.loadFromPath('./config.json');
@@ -46,6 +50,13 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
+    /**
+     * check the existance of the object / bucket
+     * @param {string} objectUrl location on bucket (example awsnode.actualit.info/readme.md)
+     * @param {string} objectUrl the bucket (example awsnode.actualit.info)
+     * 
+     * @retun {bool} does it exist?
+     */
     async exists({ objectUrl }) {
         try {
             if (objectUrl.indexOf("/") == -1) {
@@ -71,6 +82,13 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
+    /**
+     * Create an object on the bucket, create bucket if it not exists
+     * @param {string} objectURL location on bucket (example awsnode.actualit.info/readme.md)
+     * @param {string} filePath  where is the file local or url? (example with local file: c:\just_BI_api\readme.md, example with url: http://perdu.com/)
+     * 
+     * @retun {bool} return false when failed
+     */
     async createObject({ objectUrl, filePath = "" }) {   
         const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
         try {
@@ -125,6 +143,12 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
+    /**
+     * remove an object on the bucket
+     * @param {string} objectURL location on bucket (example awsnode.actualit.info/readme.md)
+     * 
+     * @retun {bool} return false when failed
+     */
     async removeObject({ objectUrl }) {
         try {
             if(!await this.exists({objectUrl: objectUrl}))
@@ -143,6 +167,13 @@ class Bucket extends AbstractBucketManager {
         }
     }
 
+    /**
+     * download an object of the bucket on a specific location
+     * @param {string} objectUrl location on bucket (example awsnode.actualit.info/readme.md)
+     * @param {string} destinationUri  where is the file has to download (example: c:\just_BI_API\downloaded_files\README.md)
+     * 
+     * @retun {bool} return if it was successful
+     */
     async downloadObject({ objectUrl, destinationUri }) {
         try {
             const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
