@@ -110,7 +110,6 @@ describe("init", () => {
     }).timeout(15000);
 
     it("RemoveObject_EmptyBucket_Success", async () => {
-
         //given
         await bucket.createObject({ objectUrl: bucketUrl });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
@@ -121,7 +120,6 @@ describe("init", () => {
     }).timeout(15000);
 
     it("RemoveObject_NotEmptyBucket_Success", async () => {
-
         //given          
         await bucket.createObject({ objectUrl: fileUrl, filePath: fullPathToFile });
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), true);
@@ -131,4 +129,4 @@ describe("init", () => {
         //then
         assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl }), false);
     }).timeout(15000);
-})
+});
