@@ -12,7 +12,7 @@ function bucketUrl(){
 }
 
 var bucket = new Bucket();
-var detectingLables = new DetectingLabels();
+var detectingLabels = new DetectingLabels();
 // when you execute all test winth "npm test", random tests fail...
 // but if you use "mocha -g name_of_test" each test pass
 describe("init", () => {
@@ -30,9 +30,9 @@ describe("init", () => {
         //given
         assert.strictEqual(fs.existsSync(fullPathToImage), true);
         //when
-        res = await detectingLables.DetectingLabels({ imageUri: fullPathToImage });
+        res = await detectingLabels.DetectingLabels({ imageUri: fullPathToImage });
         //then
-        assert.strictEqual(length(res), 10);
+        assert.strictEqual(Object.keys(res).length, 10);
     }).timeout(15000);
 
     it("makeAnalysisRequest_AnalyseBucketImage_Success", async () => {
@@ -41,7 +41,7 @@ describe("init", () => {
         //when
         res = await bucket.createObject({ objectUrl: bucketUrl()+"/"+imgName });
         //then
-        assert.strictEqual(length(res), 10);
+        assert.strictEqual(Object.keys(res).length, 10);
     }).timeout(15000);
 
     

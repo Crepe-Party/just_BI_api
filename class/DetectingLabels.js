@@ -7,6 +7,7 @@ const fetch = require('node-fetch');
 const AbstractDetectingLabelsManage = require('./AbstractDetectingLabelsManage');
 class DetectingLabels extends AbstractDetectingLabelsManage{
     constructor(){
+        super()
         aws.config.loadFromPath('./config.json');
 
         this.s3 = new aws.S3({
@@ -15,13 +16,8 @@ class DetectingLabels extends AbstractDetectingLabelsManage{
             region: aws.config.region,
         });
     }
-    /**
-     * analyse an image
-     * @param {string} imageUri local image path or bucket image path
-     * @param {int} maxLabels number of metadata to return
-     * @param {int} minConfidence minimum detection rate to be achieved in order to integrate the metadata into the response
-     */
-    makeAnalysisRequest(imageUri, maxLabels = 10, minConfidence = 80){
+    makeAnalysisRequest({imageUri, maxLabels = 10, minConfidence = 80}){
         return {};
     }
 }
+module.exports = DetectingLabels;
