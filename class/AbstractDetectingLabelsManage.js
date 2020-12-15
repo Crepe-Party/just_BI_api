@@ -1,12 +1,12 @@
-module.exports = class AbstractDetectingFacesManage{
+module.exports = class AbstractDetectingLabelsManage{
     /**
      * @constructor
      * 
      * Create an instance with credentials and secret key to acces on the AWS S3
      */
     constructor() {
-      if (this.constructor === AbstractDetectingFacesManage) {
-        throw new TypeError('Abstract class "AbstractDetectingFacesManage" cannot be instantiated directly');
+      if (this.constructor === AbstractDetectingLabelsManage) {
+        throw new TypeError('Abstract class "AbstractDetectingLabelsManage" cannot be instantiated directly');
       }
     }
     

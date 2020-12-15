@@ -4,7 +4,8 @@ var fs = require('fs');
 var path = require('path')
 const fetch = require('node-fetch');
 
-class DetectingFaces{
+const AbstractDetectingLabelsManage = require('./AbstractDetectingLabelsManage');
+class DetectingLabels extends AbstractDetectingLabelsManage{
     constructor(){
         aws.config.loadFromPath('./config.json');
 
@@ -21,6 +22,6 @@ class DetectingFaces{
      * @param {int} minConfidence minimum detection rate to be achieved in order to integrate the metadata into the response
      */
     makeAnalysisRequest(imageUri, maxLabels = 10, minConfidence = 80){
-
+        return {};
     }
 }
