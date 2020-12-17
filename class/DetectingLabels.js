@@ -5,8 +5,8 @@ var path = require('path')
 const fetch = require('node-fetch');
 const client = new AWS.Rekognition();
 
-const AbstractDetectingLabelsManage = require('./AbstractDetectingLabelsManage');
-class DetectingLabels extends AbstractDetectingLabelsManage{
+const AbstractDetectingFacesManage = require('./AbstractDetectingFacesManage');
+class DetectingFaces extends AbstractDetectingFacesManage{
     constructor(){
         super()
         aws.config.loadFromPath('./config.json');
@@ -16,7 +16,7 @@ class DetectingLabels extends AbstractDetectingLabelsManage{
             region: aws.config.region,
         });
     }
-    makeAnalysisRequest({imageUri, maxLabels = 10, minConfidence = 80}){
+    makeAnalysisRequest({imageUri, maxFaces = 10, minConfidence = 80}){
         var bucketname = imageUri.substring(0, imageUri.indexOf("/"));
         var filename = imageUri.substring(imageUri.indexOf("/") + 1, imageUri.length);
         client.detectFaces({
@@ -37,4 +37,4 @@ class DetectingLabels extends AbstractDetectingLabelsManage{
         })
     }
 }
-module.exports = DetectingLabels;
+module.exports = DetectingFaces;

@@ -1,6 +1,6 @@
 // import entire SDK
 var Bucket = require('../class/Bucket');
-var DetectingLabels = require('../class/DetectingLabels');
+var DetectingFaces = require('../class/DetectingFaces');
 var fs = require('fs');
 const assert = require("assert");
 var bucketNumber = 1;
@@ -12,7 +12,7 @@ function bucketUrl(){
 }
 
 var bucket = new Bucket();
-var detectingLabels = new DetectingLabels();
+var detectingFaces = new DetectingFaces();
 // when you execute all test winth "npm test", random tests fail...
 // but if you use "mocha -g name_of_test" each test pass
 describe("init", () => {
@@ -30,7 +30,7 @@ describe("init", () => {
         //given
         assert.strictEqual(fs.existsSync(fullPathToImage), true);
         //when
-        res = await detectingLabels.DetectingLabels({ imageUri: fullPathToImage });
+        res = await detectingFaces.DetectingFaces({ imageUri: fullPathToImage });
         //then
         assert.strictEqual(Object.keys(res).length, 10);
     }).timeout(15000);

@@ -43,3 +43,7 @@ Upload object
 Delete object
 
     aws s3 rm s3://awsnode.actualit.info/example/filename.txt
+
+Rekognition of faces
+
+    aws rekognition detect-faces --image "S3Object={Bucket=awsnode1.actualit.info,Name=gandhi.png}" --region eu-west-1
