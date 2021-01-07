@@ -43,7 +43,7 @@ describe("init", () => {
         //when
         res = await detectingFaces.makeAnalysisRequest({ imageUri: bucketUrl()+"/"+imgName });
         //then
-        assert.strictEqual(Object.keys(res).length, 10);
+        assert(Object.values(res.FaceDetails[0]).length <= 10);
     }).timeout(15000);
 
     
