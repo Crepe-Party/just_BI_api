@@ -14,6 +14,11 @@ You're ready!
 open your terminal on project repo and write  
 for all tests `npm test`  
 for one test `mocha -g "[test name]"`  
+  
+# Start server
+open your terminal on project repo and write  
+`npm start` or `node server.js`  
+  
 # awscli
 configure awscli
 
@@ -48,3 +53,4 @@ Delete object
 # Rekognition of faces
 
     aws rekognition detect-faces --image "S3Object={Bucket=awsnode1.actualit.info,Name=gandhi.png}" --region eu-west-1
+    
