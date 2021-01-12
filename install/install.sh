@@ -35,9 +35,21 @@ echo "server{
     location / {
         proxy_set_header   X-Forwarded-For \$remote_addr;
         proxy_set_header   Host \$http_host;
-        proxy_pass         http://${ip}:8080;
+        proxy_pass         http://${passed_ip}:8080;
     }
 }" > /etc/nginx/conf.d/biapi.conf
 
 systemctl restart nginx
 
+# auto restart node server (pm2)
+npm install pm2@latest -g
+
+pm2 start /usr/share/just_bi_api/main.js
+
+username = $(whoami)
+path_command=$(pm2 startup systemd | tail -n 1)
+eval $(path_command)
+
+pm2 save
+
+sudo systemctl start pm2-${username}
