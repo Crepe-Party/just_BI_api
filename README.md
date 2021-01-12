@@ -11,8 +11,9 @@ configure your config.json
 You're ready!
   
 # Tests TDD
-open your terminal on project repo and write
-`npm test`
+open your terminal on project repo and write  
+for all tests `npm test`  
+for one test `mocha -g "[test name]"`  
 # awscli
 configure awscli
 
@@ -43,3 +44,7 @@ Upload object
 Delete object
 
     aws s3 rm s3://awsnode.actualit.info/example/filename.txt
+
+# Rekognition of faces
+
+    aws rekognition detect-faces --image "S3Object={Bucket=awsnode1.actualit.info,Name=gandhi.png}" --region eu-west-1
