@@ -3,15 +3,16 @@ const aws = require('aws-sdk')
 var fs = require('fs');
 var path = require('path')
 const fetch = require('node-fetch');
-const client = new aws.Rekognition();
 
 const AbstractDetectingFacesManager = require('./AbstractDetectingFacesManager');
 const Bucket = require('./Bucket');
+
+var client;
 class DetectingFaces extends AbstractDetectingFacesManager{
     constructor(){
         super()
-        aws.config.loadFromPath('./config.json');
-        this.s3 = new aws.S3({
+        aws.config.loadFromPath(path.join(__dirname, "..", "config.json"));
+        client = new aws.Rekognition({
             accessKeyId: aws.config.accessKeyId,
             secretAccessKey: aws.config.accessKeyId,
             region: aws.config.region,
@@ -49,6 +50,8 @@ class DetectingFaces extends AbstractDetectingFacesManager{
                 console.log(49, err, err.stack)
                 return {"FaceDetails": []}
             } else {
+                if (response.FaceDetails.length <= 0) return response
+                    
                 var result = response.FaceDetails[0]
                 //Exclude attribute with confidence less than minConfidence parameter or no confidence
                 for (var attribute in result) {

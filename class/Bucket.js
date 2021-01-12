@@ -10,7 +10,7 @@ class Bucket extends AbstractBucketManager {
     
     constructor() {
         super()
-        aws.config.loadFromPath('./config.json');
+        aws.config.loadFromPath(path.join(__dirname, "..", "config.json"));
 
         this.s3 = new aws.S3({
             accessKeyId: aws.config.accessKeyId,
