@@ -5,7 +5,7 @@ const fs = require('fs');
 const assert = require("assert");
 var bucketNumber = 1;
 const imgName = "gandhi.png"
-const fullPathLocalImage = __dirname + "/" + imgName
+const fullPathLocalImage = `${__dirname}/${imgName}`
 
 function bucketUrl(){
     return "awsnode"+bucketNumber+".actualit.info"
@@ -22,9 +22,6 @@ describe("init", () => {
             done() //we wait 5sec, beacause aws require a few times after each bucket delete
         }, 5000)
     })
-    afterEach(async () => {
-        
-    })
     
     it("makeAnalysisRequest_AnalyseLocalImage_Success", async () => {
         //given
@@ -32,14 +29,13 @@ describe("init", () => {
         //when
         res = await detectingFaces.makeAnalysisRequest({ imageUri: fullPathLocalImage });
         //then
-        console.log(res);
-        assert.strictEqual(Object.keys(res).length, 10);
+        assert(Object.values(res.FaceDetails[0]).length <= 10);
     }).timeout(15000);
 
     it("makeAnalysisRequest_AnalyseBucketImage_Success", async () => {
         //given
         await bucket.createObject({ objectUrl: bucketUrl()+"/"+imgName, filePath: fullPathLocalImage });
-        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl() }), true);
+        assert.strictEqual(await bucket.exists({ objectUrl: bucketUrl()+"/"+imgName }), true);
         //when
         res = await detectingFaces.makeAnalysisRequest({ imageUri: bucketUrl()+"/"+imgName });
         //then
