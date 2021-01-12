@@ -1,5 +1,9 @@
 "use strict"
-const fs = require("fs").promises;
+const fs = require("fs");
+const DetectingFaces = require("./class/DetectingFaces");
+const Bucket = require("./class/Bucket");
+let detectingFaces = new DetectingFaces();
+let bucket = new Bucket();
 
 const express = require("express");
 var fileupload = require("express-fileupload");
@@ -28,30 +32,36 @@ app.post("/detect-faces", async (req, res) => {
                 message: "form-data 'picture' not found!"
             });
         } else {
+            if (!fs.existsSync(uploadDirLocation)) {
+                fs.mkdirSync(uploadDirLocation);
+            }
+
             console.log(uploadDirLocation);
-            let params = null;
+            var maxFaces = 1
+            var minConfidence = 80
             if(req.body)
             {
-                let params = req.body;
+                if(req.body.maxFaces && Number(req.body.maxFaces) > 0  )
+                    maxFaces = Number(req.body.maxFaces);
+                if(req.body.maxFaces && Number(req.body.minConfidence) >= 0 && 100 >= Number(req.body.minConfidence) )
+                    minConfidence = Number(req.body.minConfidence);
             }
-            console.log("params: ", params);
+            let params = {maxFaces, minConfidence};
 
             let picture = req.files.picture;
             let ext = path.extname(picture.name);
             picture.name=`${uuid.v4()}${ext}` // generate unique name to prevent overrides
-
+            let filePath = path.join(uploadDirLocation, picture.name);
             //move file on specific dir
-            picture.mv(path.join(uploadDirLocation, picture.name));
+            picture.mv(filePath);
+
+            let result = await detectingFaces.makeAnalysisRequest({imageUri: filePath, maxFaces: params.maxFaces, minConfidence: params.minConfidence})
 
             //send response
             res.send({
                 status: true,
                 message: 'Success',
-                data: {
-                    name: picture.name,
-                    mimetype: picture.mimetype,
-                    size: picture.size
-                }
+                data: result
             });
         }
     } catch (err) {
