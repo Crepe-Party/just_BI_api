@@ -1,18 +1,19 @@
-DIR="$HOME/git/just_BI_api"
+DIR="$HOME/just_BI_api"
 
-if [[ -d "$DIR" ]]; then
-  echo "Update just_BI_api files in ${DIR}..."
-  cd "$DIR"
-  git pull
-else
-  # Take action if $DIR exists. #
+if [ ! -d "$DIR" ]; then
   echo "Clone just_BI_api files in ${DIR}..."
   git clone https://github.com/Crepe-Party/just_BI_api
-  cd "$DIR"
-  rm -r test jest.config.js config.json.example README.md
-
-  #COPY the config file on project
-  cp ../config.json config.json
 fi
 
+cd "$DIR"
+git stash
+git pull
+cp ../config.json config.json
 npm i --prod
+rm -r test jest.config.js config.json.example README.md
+
+if [ ! -d "$DIR" ]; then
+  pm2 start server.js
+else
+  pm2 restart server.js
+fi
