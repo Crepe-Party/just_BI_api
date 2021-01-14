@@ -19,6 +19,16 @@ for one test `mocha -g "[test name]"`
 open your terminal on project repo and write  
 `npm start` or `node server.js`  
   
+# Deployement script  
+> to use our script, your computer has to have `nodejs`, `npm`, `git` and `pm2`
+
+1. move the script `deploy.sh` and `config.json.example` to the folder containing the JUST_BI_API project
+ - from JUST_BI_API dir: `cp deployement_script/deploy.sh ../deploy.sh`
+ - from JUST_BI_API dir: `cp config.json.example ../config.json`
+1. modify the deploy script and change the `BASEDIR` var to change the location of the project
+3. configure the `config.json`
+2. start deploy; `sh deploy.sh`
+
 # awscli
 configure awscli
 

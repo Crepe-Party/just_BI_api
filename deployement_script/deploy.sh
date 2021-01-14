@@ -1,6 +1,8 @@
-DIR="$HOME/just_BI_api"
+BASEDIR="$HOME"
+DIR="$BASEDIR/just_BI_api"
 
 if [ ! -d "$DIR" ]; then
+  cd "$BASEDIR"
   echo "Clone just_BI_api files in ${DIR}..."
   git clone https://github.com/Crepe-Party/just_BI_api
 fi
