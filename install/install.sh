@@ -24,27 +24,30 @@ apt install -y nodejs
 mkdir /usr/share/just_bi_api
 #placeholder script
 echo "
-require('http').createServer((req,res)=>{res.end('this is a placeholder server')}).listen(8080)
-" > /usr/share/just_bi_api/main.js
+require('http').createServer((req,res)=>{res.end('this is a placeholder server')}).listen(3000)
+" > /home/admin/just_bi_api/server.js
 #install nginx
 apt install nginx -y
 #config reverse proxy
-echo "server{
-    listen 80;
-    server_name biapi.proxy;
+echo "server {
     location / {
-        proxy_set_header   X-Forwarded-For \$remote_addr;
-        proxy_set_header   Host \$http_host;
-        proxy_pass         http://${passed_ip}:8080;
+            proxy_pass http://localhost:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
     }
-}" > /etc/nginx/conf.d/biapi.conf
+    listen 80 default_server;
+}
+" > /etc/nginx/sites-available/default
 
 systemctl restart nginx
 
 # auto restart node server (pm2)
 npm install pm2@latest -g
 
-pm2 start /usr/share/just_bi_api/main.js
+pm2 start /home/admin/just_bi_api/server.js
 
 username = $(whoami)
 path_command=$(pm2 startup systemd | tail -n 1)
@@ -52,4 +55,7 @@ eval $(path_command)
 
 pm2 save
 
-sudo systemctl start pm2-${username}
+systemctl start pm2-${username}
+
+#https
+apt install fail2ban
