@@ -137,7 +137,12 @@ class Bucket extends AbstractBucketManager {
     async listObjects({ bucket }) {
         return this.s3.listObjectsV2({ Bucket: bucket }).promise();
     }
-
+    /**
+     * @param @param {string} bucket  bucket name (example: awsnode.actualit.info)
+     * 
+     * destroy bucket and return the result after destroy or false if bucket not exists
+     * @return {boolean} return false when failed
+     */
     async destroyBucket({ bucket }) {
         try {
             const { Contents } = await this.listObjects({ bucket })
