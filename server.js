@@ -12,9 +12,6 @@ const uuid = require('uuid');
 const path = require('path')
 const uploadDirLocation = path.join(__dirname, "uploads");
 
-// import DetectingFaces
-// makeAnalysisRequest({})
-// makeAnalysisRequest({imageUri, maxFaces = 10, minConfidence = 80})
 const app = express();
 app.use(fileupload());
 
@@ -36,7 +33,6 @@ app.post("/detect-faces", async (req, res) => {
                 fs.mkdirSync(uploadDirLocation);
             }
 
-            console.log(uploadDirLocation);
             var maxFaces = 1
             var minConfidence = 80
             if(req.body)
@@ -58,11 +54,7 @@ app.post("/detect-faces", async (req, res) => {
             let result = await detectingFaces.makeAnalysisRequest({imageUri: filePath, maxFaces: params.maxFaces, minConfidence: params.minConfidence})
 
             //send response
-            res.send({
-                status: true,
-                message: 'Success',
-                data: result
-            });
+            res.send(result);
         }
     } catch (err) {
         console.log(err)
