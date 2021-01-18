@@ -6,11 +6,13 @@ var path = require('path')
 const fetch = require('node-fetch');
 
 const AbstractBucketManager = require('./AbstractBucketManager');
+/**
+ * Manage the AWS bucket using the bucket manager interface
+ */
 class Bucket extends AbstractBucketManager {
-    
     constructor() {
         super()
-        aws.config.loadFromPath('./config.json');
+        aws.config.loadFromPath(path.join(__dirname, "..", "config.json"));
 
         this.s3 = new aws.S3({
             accessKeyId: aws.config.accessKeyId,
@@ -18,6 +20,12 @@ class Bucket extends AbstractBucketManager {
             region: aws.config.region,
         });
     }
+    /**
+     * extract from objectUrl param the bucket name and the key
+     * @param {string} objectUrl  location on bucket (example: awsnode.actualit.info/readme.md or awsnode.actualit.info)
+     * 
+     * @return {object} return {bucket, key}
+     */
     getbucketNameAndKey({ objectUrl }){
         var bucket = objectUrl.substring(0, objectUrl.indexOf("/"));
         var key = objectUrl.substring(objectUrl.indexOf("/") + 1, objectUrl.length);
@@ -28,6 +36,12 @@ class Bucket extends AbstractBucketManager {
         }
         return {bucket,key}
     }
+    /**
+     * Check if object exists (example: awsnode.actualit.info/readme.md exists?)
+     * @param {string} objectUrl location on bucket (example: awsnode.actualit.info/readme.md)
+     * 
+     * @return {boolean}
+     */
     async objectExists({ objectUrl }) {
         try {
             const {bucket, key} = this.getbucketNameAndKey({ objectUrl });
@@ -37,7 +51,12 @@ class Bucket extends AbstractBucketManager {
             return false;
         }
     }
-
+    /**
+     * Check if bucket exists (example: awsnode.actualit.info exists?)
+     * @param {string} bucket bucket name (example: awsnode.actualit.info)
+     * 
+     * @return {boolean}
+     */
     async bucketExists({ bucket }) {
         try {
             await this.s3.headBucket({ Bucket: bucket }).promise()
@@ -46,7 +65,7 @@ class Bucket extends AbstractBucketManager {
             return false;
         }
     }
-
+    
     async exists({ objectUrl }) {
         try {
             if (objectUrl.indexOf("/") == -1) {
@@ -58,14 +77,23 @@ class Bucket extends AbstractBucketManager {
             return false
         }
     }
-
+    /**
+     * get content of the url
+     * @param {string} url example: http://www.perdu.com
+     * 
+     * @return {string} return content of the page
+     */
     async getDataFromUrl(url) {
         const response = await fetch(url);
         const text = await response.text();
         return text;
     }
-
-
+    /**
+     * get content of the url
+     * @param {string} url example: http://www.perdu.com
+     * 
+     * @return {string} return content of the page
+     */
     async checkAndCreateBucket({ bucket }) {
         if (!await this.bucketExists({ bucket })) {
             return await this.s3.createBucket({ Bucket: bucket }).promise();
@@ -101,11 +129,20 @@ class Bucket extends AbstractBucketManager {
             return false
         }
     }
-
+    /**
+     * @param {string} bucket bucket name (example: awsnode.actualit.info)
+     * 
+     * @return {object} returnun object with multiple contents
+     */
     async listObjects({ bucket }) {
         return this.s3.listObjectsV2({ Bucket: bucket }).promise();
     }
-
+    /**
+     * @param @param {string} bucket  bucket name (example: awsnode.actualit.info)
+     * 
+     * destroy bucket and return the result after destroy or false if bucket not exists
+     * @return {boolean} return false when failed
+     */
     async destroyBucket({ bucket }) {
         try {
             const { Contents } = await this.listObjects({ bucket })
