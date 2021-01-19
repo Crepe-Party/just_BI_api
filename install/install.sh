@@ -30,17 +30,15 @@ require('http').createServer((req,res)=>{res.end('this is a placeholder server')
 apt install nginx -y
 #config reverse proxy
 echo "server {
+    listen              443 ssl;
+
+    ssl_certificate     /home/admin/.ssl/37637387_justbiapi.diduno.education.cert;
+    ssl_certificate_key /home/admin/.ssl/37637387_justbiapi.diduno.education.key;
+
     location / {
-            proxy_pass http://localhost:3000;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
+        proxy_pass http://localhost:3000;
     }
-    listen 80 default_server;
-}
-" > /etc/nginx/sites-available/default
+}" > /etc/nginx/sites-available/default
 
 systemctl restart nginx
 

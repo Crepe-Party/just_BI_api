@@ -65,4 +65,3 @@ Delete object
 # Rekognition of faces
 
     aws rekognition detect-faces --image "S3Object={Bucket=awsnode1.actualit.info,Name=gandhi.png}" --region eu-west-1
-    
