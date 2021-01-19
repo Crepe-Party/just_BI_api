@@ -52,9 +52,16 @@ app.post("/detect-faces", async (req, res) => {
             picture.mv(filePath);
 
             let result = await detectingFaces.makeAnalysisRequest({imageUri: filePath, maxFaces: params.maxFaces, minConfidence: params.minConfidence})
-
+            let date_ob = new Date();
+            // date => 2020-JAN-19
+            let date = `${date_ob.getFullYear()}-${date.toLocaleString('default', { month: 'short' }).toUpperCase()}-${date.getDate()}`
+            let time = `${date_ob.getHours()}:${date_ob.getMinutes}:${date_ob.getSeconds()}`
             //send response
-            res.send(result);
+            res.send({
+                FileName: picture.name,
+                ProcessDate: `${date} ${time}`,
+                FaceDetails: result.FaceDetails
+            });
         }
     } catch (err) {
         console.log(err)
