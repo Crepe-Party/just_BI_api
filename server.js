@@ -61,7 +61,7 @@ app.post("/detect-faces", async (req, res) => {
             })
             
             // date => 2020-JAN-19
-            let date = `${date_ob.getFullYear()}-${date_ob.toLocaleString('default', { month: 'short' }).toUpperCase()}-${date_ob.getDate()}`
+            let date = `${date_ob.getFullYear()}-${date_ob.toLocaleString('en', { month: 'short' }).toUpperCase()}-${date_ob.getDate()}`
             let time = `${date_ob.getHours()}:${date_ob.getMinutes()}:${date_ob.getSeconds()}`
             
             //send response
