@@ -8,7 +8,7 @@ if [ ! -d "$DIR" ]; then
 fi
 
 cd "$DIR"
-git stash
+git reset --hard HEAD
 git pull
 npm i --prod
 rm -r deployement_script install test config.json.example jest.config.js README.md

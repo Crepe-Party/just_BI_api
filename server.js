@@ -46,8 +46,8 @@ app.post("/detect-faces", async (req, res) => {
 
             let picture = req.files.picture;
             let ext = path.extname(picture.name);
-            picture.name=`${uuid.v4()}${ext}` // generate unique name to prevent overrides
-            let filePath = path.join(uploadDirLocation, picture.name);
+            randomName=`${uuid.v4()}${ext}` // generate unique name to prevent overrides
+            let filePath = path.join(uploadDirLocation, randomName);
             //move file on specific dir
             picture.mv(filePath);
 
