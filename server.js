@@ -9,7 +9,7 @@ const express = require("express");
 var fileupload = require("express-fileupload");
 
 const uuid = require('uuid');
-const path = require('path')
+const path = require('path');
 const uploadDirLocation = path.join(__dirname, "uploads");
 
 const app = express();
@@ -45,6 +45,7 @@ app.post("/detect-faces", async (req, res) => {
             let params = {maxFaces, minConfidence};
 
             let picture = req.files.picture;
+            let oldName = picture.name
             let ext = path.extname(picture.name);
             picture.name=`${uuid.v4()}${ext}` // generate unique name to prevent overrides
             let filePath = path.join(uploadDirLocation, picture.name);
@@ -52,7 +53,11 @@ app.post("/detect-faces", async (req, res) => {
             picture.mv(filePath);
 
             let result = await detectingFaces.makeAnalysisRequest({imageUri: filePath, maxFaces: params.maxFaces, minConfidence: params.minConfidence})
-
+            GeneratSQLAnswer(result, oldName, '2000-01-01 00:00:00')
+            
+            fs.unlink(filePath, function (err){
+                if(err) console.log(err)
+            })
             //send response
             res.send(result);
         }
@@ -65,3 +70,29 @@ app.post("/detect-faces", async (req, res) => {
 app.listen(port, () => {
     console.log(`WE are LISTENING at http://localhost:${port}`);
 })
+
+async function GeneratSQLAnswer(result, pictureName, datetime){
+    fs.readFile("./databaseModelRIA2.sql", 'utf8', function (err,data) {
+        if (err) {
+          return console.log(err);
+        }
+        var sqlfile = data.replace("???", `("${pictureName}", "${datetime}")`)
+        var sqlInsert = []
+        for (var attribute in result.FaceDetails[0]) {
+            sqlInsert.push(`("${attribute}", "${result.FaceDetails[0][attribute].Value}", ${result.FaceDetails[0][attribute].Confidence}, @fileID)`)
+        }
+        var sqlfile = sqlfile.replace("????", sqlInsert.join(","))
+        var filePath = path.join(uploadDirLocation, pictureName+".sql");
+        fs.writeFile(filePath, sqlfile, async function (err) {
+            if(err){
+                console.log(err)
+            }else{
+                await bucket.createObject({ objectUrl: `awsnode1.actualit.info/${pictureName}.sql`, filePath: filePath });
+                fs.unlink(filePath, function (err){
+                    if(err) console.log(err)
+                })
+            }
+        })
+
+    })
+}

@@ -28,10 +28,10 @@ CREATE TABLE IF NOT EXISTS `files` (
 -- Dumping data for table labels.files: ~1 rows (approximately)
 DELETE FROM `files`;
 /*!40000 ALTER TABLE `files` DISABLE KEYS */;
-INSERT INTO `files` (`fileId`, `fileName`, `lastAnalysisDate`) VALUES
-	(1, 'gandhi.jpg', '2021-01-07 13:00:49');
+INSERT INTO `files` (`fileName`, `lastAnalysisDate`) VALUES
+	???
 /*!40000 ALTER TABLE `files` ENABLE KEYS */;
-
+SET @fileID = SELECT LAST_INSERT_ID();
 -- Dumping structure for table labels.labelresults
 CREATE TABLE IF NOT EXISTS `labelresults` (
   `labelResultId` int(11) NOT NULL AUTO_INCREMENT,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `labelresults` (
 -- Dumping data for table labels.labelresults: ~2 rows (approximately)
 DELETE FROM `labelresults`;
 /*!40000 ALTER TABLE `labelresults` DISABLE KEYS */;
-INSERT INTO `labelresults` (`labelResultId`, `labelDescription`, `labelValue`, `confidenceRate`, `fileId`) VALUES
+INSERT INTO `labelresults` (`labelDescription`, `labelValue`, `confidenceRate`, `fileId`) VALUES
 	????
 /*!40000 ALTER TABLE `labelresults` ENABLE KEYS */;
 
