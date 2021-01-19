@@ -110,3 +110,4 @@ config.json
 
 package-lock.json
 downloaded.*
+serverConfig.js

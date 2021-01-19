@@ -11,6 +11,7 @@ cd "$DIR"
 git stash
 git pull
 cp ../config.json config.json
+cp ../serverConfig.js serverConfig.js
 npm i --prod
 rm -r test jest.config.js config.json.example README.md
 

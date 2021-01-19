@@ -1,7 +1,10 @@
 "use strict"
 const fs = require("fs");
+const https = require('https');
+
 const DetectingFaces = require("./class/DetectingFaces");
 const Bucket = require("./class/Bucket");
+
 let detectingFaces = new DetectingFaces();
 let bucket = new Bucket();
 
@@ -9,17 +12,17 @@ const express = require("express");
 var fileupload = require("express-fileupload");
 
 const uuid = require('uuid');
-const path = require('path')
+const path = require('path');
 const uploadDirLocation = path.join(__dirname, "uploads");
+
+const serverConfig = require('./serverConfig')
 
 const app = express();
 app.use(fileupload());
 
-const port = 3000;
+app.use(express.static('public'));
 
-app.get("/", (req, res) => {
-    res.send("use /detect-faces");
-});
+const port = 3000;
 
 app.post("/detect-faces", async (req, res) => {
     try{
@@ -62,6 +65,10 @@ app.post("/detect-faces", async (req, res) => {
     }
 });
 
-app.listen(port, () => {
+const httpsServer = https.createServer({
+    cert: fs.readFileSync(serverConfig.certificatePath),
+    key: fs.readFileSync(serverConfig.privateKeyPath),
+}, app)
+httpsServer.listen(port, ()=>{
     console.log(`WE are LISTENING at http://localhost:${port}`);
 })
