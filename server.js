@@ -54,7 +54,7 @@ app.post("/detect-faces", async (req, res) => {
             let date_ob = new Date();
 
             let result = await detectingFaces.makeAnalysisRequest({imageUri: filePath, maxFaces: params.maxFaces, minConfidence: params.minConfidence})
-            GeneratSQLAnswer(result, path.parse(picture.name).name, date_ob.toISOString().slice(0, 19).replace('T', ' '))
+            GenerateSQLAnswer(result, path.parse(picture.name).name, date_ob.toISOString().slice(0, 19).replace('T', ' '))
             
             fs.unlink(filePath, function (err){
                 if(err) console.error(err)
@@ -81,7 +81,7 @@ app.listen(port, () => {
     console.log(`WE are LISTENING at http://localhost:${port}`);
 })
 
-async function GeneratSQLAnswer(result, pictureName, datetime){
+async function GenerateSQLAnswer(result, pictureName, datetime){
     fs.readFile("./databaseModelRIA2.sql", 'utf8', function (err,data) {
         if (err) {
           return console.error(err);
