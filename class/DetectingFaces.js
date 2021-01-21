@@ -24,7 +24,7 @@ class DetectingFaces extends AbstractDetectingFacesManager{
         if(/^[A-z]:/.test(imageUri) || imageUri.startsWith("/")){
             var bucketname = "awsnode1.actualit.info"
             var filename = imageUri.split("/").pop()
-            if(await this.bucket.createObject({ objectUrl: bucketname+"/"+filename, filePath: imageUri }) == false){
+            if(await this.bucket.createObject({ objectUrl: `${bucketname}/${filename}`, filePath: imageUri }) == false){
                 console.log(28, `Image ${filename} can't be created on bucket ${bucketname}`)
                 return {"FaceDetails": []}
             }
@@ -73,6 +73,7 @@ class DetectingFaces extends AbstractDetectingFacesManager{
                 return {"FaceDetails": [sorted]}
             }
         }).promise()
+        this.bucket.removeObject({ objectUrl: `${bucketname}/${filename}` })
         return res
     }
 }

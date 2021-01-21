@@ -8,11 +8,10 @@ if [ ! -d "$DIR" ]; then
 fi
 
 cd "$DIR"
-git stash
+git reset --hard HEAD
 git pull
-cp ../config.json config.json
 npm i --prod
-rm -r test jest.config.js config.json.example README.md
+rm -r deployement_script install test config.json.example jest.config.js README.md
 
 if [ ! -d "$DIR" ]; then
   pm2 start server.js
